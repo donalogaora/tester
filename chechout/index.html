@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chechout</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 1rem;
+    }
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin-right: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .cart-item-details {
+      flex-grow: 1;
+    }
+    .cart-item-name {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    .cart-item-qty input {
+      width: 50px;
+      text-align: center;
+    }
+    .cart-item-remove {
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+      margin-left: 1rem;
+    }
+    .summary {
+      margin-top: 2rem;
+      border-top: 2px solid #000;
+      padding-top: 1rem;
+      text-align: right;
+    }
+    .promo-code {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .promo-code input {
+      padding: 0.25rem 0.5rem;
+      width: 150px;
+    }
+    button {
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      background-color: #0070ba;
+      color: white;
+      border: none;
+      border-radius: 3px;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-top: 2rem;
+      text-decoration: none;
+      color: #0070ba;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Your Cart</h1>
+  <div id="cart-items"></div>
+
+  <div class="promo-code">
+    <label for="promo">Promo code:</label>
+    <input type="text" id="promo" placeholder="Enter code" />
+    <button id="apply-promo">Apply</button>
+  </div>
+
+  <div class="summary">
+    <div>Subtotal: $<span id="subtotal">0.00</span></div>
+    <div>Discount: -$<span id="discount">0.00</span></div>
+    <div><strong>Total: $<span id="total">0.00</span></strong></div>
+    <button id="checkout" disabled>Checkout</button>
+  </div>
+
+  <a href="../index.html" class="back-btn">&larr; Back to Shop</a>
+
+  <script>
+    // Example products structure in cart stored in localStorage as JSON string
+    // [
+    //   { id: '1', name: 'T-Shirt', color: 'Black', price: 20, qty: 2, image: 'https://via.placeholder.com/80' },
+    //   { id: '2', name: 'Hat', color: 'Blue', price: 15, qty: 1, image: 'https://via.placeholder.com/80' }
+    // ]
+
+    // Promo codes with fixed % discount
+    const promoCodes = {
+      SAVE10: 10,  // 10% discount
+      SAVE20: 20   // 20% discount
+    };
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let appliedDiscount = 0;
+
+    const cartItemsEl = document.getElementById('cart-items');
+    const subtotalEl = document.getElementById('subtotal');
+    const discountEl = document.getElementById('discount');
+    const totalEl = document.getElementById('total');
+    const checkoutBtn = document.getElementById('checkout');
+    const promoInput = document.getElementById('promo');
+    const applyPromoBtn = document.getElementById('apply-promo');
+
+    function renderCart() {
+      cartItemsEl.innerHTML = '';
+
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML = '<p>Your cart is empty.</p>';
+        checkoutBtn.disabled = true;
+        updateSummary();
+        return;
+      }
+
+      cart.forEach((item, index) => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-item';
+
+        itemEl.innerHTML = `
+          <img src="${item.image}" alt="${item.name}" />
+          <div class="cart-item-details">
+            <div class="cart-item-name">${item.name} <small>(${item.color})</small></div>
+            <div>$${item.price.toFixed(2)}</div>
+          </div>
+          <div class="cart-item-qty">
+            Qty: <input type="number" min="1" value="${item.qty}" data-index="${index}" />
+          </div>
+          <div class="cart-item-remove" data-index="${index}">&times;</div>
+        `;
+
+        cartItemsEl.appendChild(itemEl);
+      });
+
+      checkoutBtn.disabled = false;
+      updateSummary();
+      attachEventListeners();
+    }
+
+    function updateSummary() {
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      subtotalEl.textContent = subtotal.toFixed(2);
+
+      const discountAmount = (subtotal * appliedDiscount) / 100;
+      discountEl.textContent = discountAmount.toFixed(2);
+
+      totalEl.textContent = (subtotal - discountAmount).toFixed(2);
+    }
+
+    function attachEventListeners() {
+      // Quantity change
+      const qtyInputs = cartItemsEl.querySelectorAll('input[type="number"]');
+      qtyInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+          const idx = e.target.getAttribute('data-index');
+          let val = parseInt(e.target.value);
+          if (isNaN(val) || val < 1) val = 1;
+          cart[idx].qty = val;
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        });
+      });
+
+      // Remove item
+      const removeBtns = cartItemsEl.querySelectorAll('.cart-item-remove');
+      removeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = e.target.getAttribute('data-index');
+          cart.splice(idx, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          appliedDiscount = 0;
+          promoInput.value = '';
+          renderCart();
+        });
+      });
+    }
+
+    applyPromoBtn.addEventListener('click', () => {
+      const code = promoInput.value.trim().toUpperCase();
+      if (promoCodes[code]) {
+        appliedDiscount = promoCodes[code];
+        alert(`Promo code applied! ${appliedDiscount}% off.`);
+      } else {
+        appliedDiscount = 0;
+        alert('Invalid promo code.');
+      }
+      updateSummary();
+    });
+
+    checkoutBtn.addEventListener('click', () => {
+      alert('Checkout button clicked! Implement payment here.');
+      // You can integrate PayPal or Revolut checkout here
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>

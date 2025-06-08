@@ -1,223 +1,393 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chechout</title>
+  <title>Shopping Cart</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
   <style>
+    /* Reset + base */
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 1rem;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem;
     }
+
+    a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
     h1 {
+      font-weight: 600;
+      font-size: 2rem;
+      margin-bottom: 2rem;
       text-align: center;
-      margin-bottom: 1.5rem;
     }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgb(0 0 0 / 0.1);
+    }
+
+    /* Cart items */
+    .cart-items {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
     .cart-item {
       display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
       align-items: center;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 1rem;
+      background: #fff;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.03);
     }
+
     .cart-item img {
-      width: 80px;
-      height: 80px;
+      width: 96px;
+      height: 96px;
       object-fit: cover;
-      margin-right: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 8px;
     }
+
     .cart-item-details {
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.25rem;
     }
+
     .cart-item-name {
-      font-weight: bold;
-      margin-bottom: 0.25rem;
+      font-weight: 600;
+      font-size: 1.1rem;
     }
-    .cart-item-qty input {
-      width: 50px;
+
+    .cart-item-color {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .cart-item-price {
+      font-weight: 600;
+      color: #10b981;
+      margin-top: 0.25rem;
+    }
+
+    .cart-item-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cart-item-controls input[type="number"] {
+      width: 60px;
+      padding: 0.3rem;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
       text-align: center;
     }
+
     .cart-item-remove {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-weight: 700;
+      font-size: 1.2rem;
       cursor: pointer;
-      color: red;
-      font-weight: bold;
-      margin-left: 1rem;
+      transition: color 0.2s ease;
     }
+    .cart-item-remove:hover {
+      color: #b91c1c;
+    }
+
+    /* Summary section */
     .summary {
-      margin-top: 2rem;
-      border-top: 2px solid #000;
-      padding-top: 1rem;
-      text-align: right;
-    }
-    .promo-code {
-      margin-top: 1rem;
+      background: #f3f4f6;
+      padding: 2rem;
+      border-radius: 12px;
       display: flex;
-      justify-content: flex-end;
+      flex-direction: column;
+      gap: 1.5rem;
+      height: fit-content;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+    }
+
+    .summary h2 {
+      font-weight: 600;
+      font-size: 1.5rem;
+      border-bottom: 1px solid #d1d5db;
+      padding-bottom: 0.5rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .summary-row.discount {
+      color: #ef4444;
+    }
+
+    /* Promo code input */
+    .promo-code {
+      display: flex;
       gap: 0.5rem;
-      align-items: center;
+      margin-top: 1rem;
     }
+
     .promo-code input {
-      padding: 0.25rem 0.5rem;
-      width: 150px;
+      flex-grow: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      transition: border-color 0.2s ease;
     }
-    button {
+    .promo-code input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .promo-code button {
+      background-color: #2563eb;
+      border: none;
+      color: white;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
-      padding: 0.5rem 1rem;
-      background-color: #0070ba;
+      transition: background-color 0.2s ease;
+    }
+    .promo-code button:hover {
+      background-color: #1e40af;
+    }
+
+    /* Checkout button */
+    #checkout {
+      background-color: #10b981;
       color: white;
       border: none;
-      border-radius: 3px;
+      padding: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: auto;
     }
-    button:disabled {
-      background-color: #ccc;
+
+    #checkout:hover:not(:disabled) {
+      background-color: #059669;
+    }
+
+    #checkout:disabled {
+      background-color: #6ee7b7;
       cursor: not-allowed;
     }
+
+    /* Back to shop link */
     .back-btn {
       display: inline-block;
       margin-top: 2rem;
       text-decoration: none;
-      color: #0070ba;
+      color: #3b82f6;
+      font-weight: 600;
+      text-align: center;
+      width: 100%;
+    }
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .cart-items {
+        max-height: none;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>Your Cart</h1>
-  <div id="cart-items"></div>
+  <h1>Your Shopping Cart</h1>
+  <div class="container">
+    <div class="cart-items" id="cart-items"></div>
 
-  <div class="promo-code">
-    <label for="promo">Promo code:</label>
-    <input type="text" id="promo" placeholder="Enter code" />
-    <button id="apply-promo">Apply</button>
+    <div class="summary">
+      <h2>Order Summary</h2>
+      <div class="summary-row">
+        <span>Subtotal</span><span>$<span id="subtotal">0.00</span></span>
+      </div>
+      <div class="summary-row discount" id="discount-row" style="display:none;">
+        <span>Discount</span><span>-$<span id="discount">0.00</span></span>
+      </div>
+      <div class="summary-row" style="font-size: 1.25rem; font-weight: 700;">
+        <span>Total</span><span>$<span id="total">0.00</span></span>
+      </div>
+
+      <div class="promo-code">
+        <input type="text" id="promo" placeholder="Enter promo code" />
+        <button id="apply-promo">Apply</button>
+      </div>
+
+      <button id="checkout" disabled>Proceed to Checkout</button>
+    </div>
   </div>
 
-  <div class="summary">
-    <div>Subtotal: $<span id="subtotal">0.00</span></div>
-    <div>Discount: -$<span id="discount">0.00</span></div>
-    <div><strong>Total: $<span id="total">0.00</span></strong></div>
-    <button id="checkout" disabled>Checkout</button>
-  </div>
+  <a href="../index.html" class="back-btn">&larr; Continue Shopping</a>
 
-  <a href="../index.html" class="back-btn">&larr; Back to Shop</a>
+<script>
+  const promoCodes = {
+    SAVE10: 10,
+    SAVE20: 20
+  };
 
-  <script>
-    // Example products structure in cart stored in localStorage as JSON string
-    // [
-    //   { id: '1', name: 'T-Shirt', color: 'Black', price: 20, qty: 2, image: 'https://via.placeholder.com/80' },
-    //   { id: '2', name: 'Hat', color: 'Blue', price: 15, qty: 1, image: 'https://via.placeholder.com/80' }
-    // ]
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let appliedDiscount = 0;
 
-    // Promo codes with fixed % discount
-    const promoCodes = {
-      SAVE10: 10,  // 10% discount
-      SAVE20: 20   // 20% discount
-    };
+  const cartItemsEl = document.getElementById('cart-items');
+  const subtotalEl = document.getElementById('subtotal');
+  const discountEl = document.getElementById('discount');
+  const discountRow = document.getElementById('discount-row');
+  const totalEl = document.getElementById('total');
+  const checkoutBtn = document.getElementById('checkout');
+  const promoInput = document.getElementById('promo');
+  const applyPromoBtn = document.getElementById('apply-promo');
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    let appliedDiscount = 0;
+  function renderCart() {
+    cartItemsEl.innerHTML = '';
 
-    const cartItemsEl = document.getElementById('cart-items');
-    const subtotalEl = document.getElementById('subtotal');
-    const discountEl = document.getElementById('discount');
-    const totalEl = document.getElementById('total');
-    const checkoutBtn = document.getElementById('checkout');
-    const promoInput = document.getElementById('promo');
-    const applyPromoBtn = document.getElementById('apply-promo');
-
-    function renderCart() {
-      cartItemsEl.innerHTML = '';
-
-      if (cart.length === 0) {
-        cartItemsEl.innerHTML = '<p>Your cart is empty.</p>';
-        checkoutBtn.disabled = true;
-        updateSummary();
-        return;
-      }
-
-      cart.forEach((item, index) => {
-        const itemEl = document.createElement('div');
-        itemEl.className = 'cart-item';
-
-        itemEl.innerHTML = `
-          <img src="${item.image}" alt="${item.name}" />
-          <div class="cart-item-details">
-            <div class="cart-item-name">${item.name} <small>(${item.color})</small></div>
-            <div>$${item.price.toFixed(2)}</div>
-          </div>
-          <div class="cart-item-qty">
-            Qty: <input type="number" min="1" value="${item.qty}" data-index="${index}" />
-          </div>
-          <div class="cart-item-remove" data-index="${index}">&times;</div>
-        `;
-
-        cartItemsEl.appendChild(itemEl);
-      });
-
-      checkoutBtn.disabled = false;
-      updateSummary();
-      attachEventListeners();
+    if (cart.length === 0) {
+      cartItemsEl.innerHTML = '<p>Your cart is empty.</p>';
+      checkoutBtn.disabled = true;
+      subtotalEl.textContent = '0.00';
+      totalEl.textContent = '0.00';
+      discountRow.style.display = 'none';
+      return;
     }
 
-    function updateSummary() {
-      const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-      subtotalEl.textContent = subtotal.toFixed(2);
-
-      const discountAmount = (subtotal * appliedDiscount) / 100;
-      discountEl.textContent = discountAmount.toFixed(2);
-
-      totalEl.textContent = (subtotal - discountAmount).toFixed(2);
-    }
-
-    function attachEventListeners() {
-      // Quantity change
-      const qtyInputs = cartItemsEl.querySelectorAll('input[type="number"]');
-      qtyInputs.forEach(input => {
-        input.addEventListener('change', (e) => {
-          const idx = e.target.getAttribute('data-index');
-          let val = parseInt(e.target.value);
-          if (isNaN(val) || val < 1) val = 1;
-          cart[idx].qty = val;
-          localStorage.setItem('cart', JSON.stringify(cart));
-          renderCart();
-        });
-      });
-
-      // Remove item
-      const removeBtns = cartItemsEl.querySelectorAll('.cart-item-remove');
-      removeBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const idx = e.target.getAttribute('data-index');
-          cart.splice(idx, 1);
-          localStorage.setItem('cart', JSON.stringify(cart));
-          appliedDiscount = 0;
-          promoInput.value = '';
-          renderCart();
-        });
-      });
-    }
-
-    applyPromoBtn.addEventListener('click', () => {
-      const code = promoInput.value.trim().toUpperCase();
-      if (promoCodes[code]) {
-        appliedDiscount = promoCodes[code];
-        alert(`Promo code applied! ${appliedDiscount}% off.`);
-      } else {
-        appliedDiscount = 0;
-        alert('Invalid promo code.');
-      }
-      updateSummary();
+    cart.forEach((item, index) => {
+      const itemTotal = (item.price * item.qty).toFixed(2);
+      const cartItemHTML = document.createElement('div');
+      cartItemHTML.className = 'cart-item';
+      cartItemHTML.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" />
+        <div class="cart-item-details">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-color">Color: ${item.color}</div>
+          <div class="cart-item-price">$${item.price.toFixed(2)} x ${item.qty} = $${itemTotal}</div>
+        </div>
+        <div class="cart-item-controls">
+          <input type="number" min="1" max="99" value="${item.qty}" data-index="${index}" />
+          <button class="cart-item-remove" data-index="${index}" title="Remove item">&times;</button>
+        </div>
+      `;
+      cartItemsEl.appendChild(cartItemHTML);
     });
 
-    checkoutBtn.addEventListener('click', () => {
-      alert('Checkout button clicked! Implement payment here.');
-      // You can integrate PayPal or Revolut checkout here
-    });
+    updateTotals();
+  }
 
-    renderCart();
-  </script>
+  function updateTotals() {
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    subtotalEl.textContent = subtotal.toFixed(2);
+
+    const discountAmount = appliedDiscount ? (subtotal * appliedDiscount / 100) : 0;
+    discountEl.textContent = discountAmount.toFixed(2);
+
+    if (discountAmount > 0) {
+      discountRow.style.display = 'flex';
+    } else {
+      discountRow.style.display = 'none';
+    }
+
+    const total = subtotal - discountAmount;
+    totalEl.textContent = total.toFixed(2);
+
+    checkoutBtn.disabled = total <= 0;
+  }
+
+  // Event delegation for qty changes and remove
+  cartItemsEl.addEventListener('input', (e) => {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+      const idx = +e.target.dataset.index;
+      let val = parseInt(e.target.value);
+      if (val < 1) val = 1;
+      if (val > 99) val = 99;
+      e.target.value = val;
+      cart[idx].qty = val;
+      saveCart();
+      renderCart();
+    }
+  });
+
+  cartItemsEl.addEventListener('click', (e) => {
+    if (e.target.classList.contains('cart-item-remove')) {
+      const idx = +e.target.dataset.index;
+      cart.splice(idx, 1);
+      saveCart();
+      renderCart();
+    }
+  });
+
+  applyPromoBtn.addEventListener('click', () => {
+    const code = promoInput.value.trim().toUpperCase();
+    if (promoCodes[code]) {
+      appliedDiscount = promoCodes[code];
+      alert(`Promo code applied! You saved ${appliedDiscount}%`);
+    } else {
+      appliedDiscount = 0;
+      alert('Invalid promo code');
+    }
+    updateTotals();
+  });
+
+  checkoutBtn.addEventListener('click', () => {
+    alert('Checkout flow not implemented yet.');
+  });
+
+  function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
+  renderCart();
+</script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 // Phone Stand Image Fade
 const phoneStandImageElement = document.getElementById('toggle-image');
 const phoneStandImages = [
-    '../assets/shop/black_3d_printed_phone_stand_preview.png',
-    '../assets/shop/white_3d_printed_phone_stand_preview.png',
-    '../assets/shop/space_grey_3d_printed_phone_stand_preview.png',
-    '../assets/shop/blue_3d_printed_phone_stand_preview.png',
-    '../assets/shop/red_3d_printed_phone_stand_preview.png',
-    '../assets/shop/orange_3d_printed_phone_stand_preview.png'
+    '../assets/shop/phonestand_black.webp',
+    '../assets/shop/phonestand_white.webp',
+    '../assets/shop/phonestand_space_grey.webp',
+    '../assets/shop/phonestand_dark_blue.webp',
+    '../assets/shop/phonestand_red.webp',
+    '../assets/shop/phonestand_orange.webp'
 ];
 let phoneStandCurrentIndex = 0;
 let phoneStandCarouselInterval;
